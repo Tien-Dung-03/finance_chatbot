@@ -1,0 +1,8 @@
+groq
+streamlit
+python-dotenv
+typing-extensions
+pathlib
+pandas 
+sqlite3
+matplotlib
