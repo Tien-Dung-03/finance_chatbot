@@ -1,94 +1,105 @@
-# Investment Portfolio AI Agent
+# Financial Chatbot
 
-## Project Overview
+## 📌 Introduction
+Financial Chatbot is an **AI Agent** system that acts as a financial investment assistant.  
+The application can:
+- Understand user questions in natural language.
+- Automatically convert questions into **SQL queries** or search the web via Google.
+- Execute queries, retrieve data from the Vietnam stock market database.
+- Return results in natural language.
 
-An AI-powered information retrieval tool that uses FinancialTool to query and visualize data to provide information on stock prices as well as technical indicators of stocks. This intelligent agent provides easy, convenient information retrieval and overviews of them.
+## ⚙️ Technologies Used
+- **Python 3.10+**
+- **Streamlit** – interactive web interface.
+- **Groq API** – natural language processing.
+- **LangChain / AI Agent logic** – orchestrating the processing flow.
+- **SQLite** – stock market database storage.
+- **SerperDevTool** – Google search integration.
+- **Matplotlib / Plotly** – data visualization.
 
-## Key Features
-- **Stock Price Lookup**: Retrieve information about stock prices, technical indicators of that company's stock, visualize query data.
-
-## How It Works
-
-The Agent system acts as a financial investment AI assistant, which can understand natural language and automatically convert user questions into SQL queries, execute them, and display visual results if needed.
-
-1. **Users enter queries naturally:** Example: "What was the closing price of Apple on March 15, 2024?".
-2. **Agent receives query and generates SQL:** The agent uses the LLM language model (Groq LLaMA3) to process the query and generate appropriate SQL statements based on the instructions in system_prompt_v1.txt.
-3. **Run SQL query:** Agent sử dụng FinancialTool
-- Based on Action type:
-  - query_stock_data: Query stock price data (stock_price)
-  - query_stock_info: Query basic company information (stock_info)
-  - plot_result: Query data and create chart and display
-4. **Streamlit display:**
-- Text results are displayed using st.markdown(result)
-- If there is a chart_output.png image, Streamlit will display it using st.image(...)
-- After displaying, the image will be automatically deleted to free up memory.
-
-### Extension to Tool Calling
-
-- **Financial Tool**: Query stock prices, query stock related information and visualize query data.
-
-This section allows the agent to leverage specific financial analysis functions while maintaining a flexible interaction flow according to the language model.
-
-## Technologies Used
-
-- **Backend**: Python
-- **AI Model**: Groq API
-- **Frontend**: Streamlit
-- **Key Libraries**:
-  - Groq
-  - python-dotenv
-  - Logging
-  - SQLite3
-  - Pandas
-  - matplotlib
-
-## 🔧 Installation
-
-### Prerequisites
-- Python 3.8+
-- Groq API Key
-
-### Setup Steps
-1. Clone the repository
-```bash
-git clone https://github.com/yourusername/investment-portfolio-ai.git
-cd finance_chatbot
+## 🗂 Project Structure
+```
+.
+├── data
+├── ├── auto_down_data                 # Folder containing files that automatically download data and transfer to db
+├── ├── csv_file                       # Folder containing csv files
+├── ├── stock.py                       # Database connection & query for stock data
+├── log                                # Log folder
+├── src
+├── ├── agent
+├── ├── ├── create_agent.py            # Agent class connecting to Groq API
+├── ├── ├── systerm_prompt             # Prompt
+├── ├── run
+├── ├── ├── run_agent.py               # Agent loop, main logic
+├── ├── tools
+├── ├── ├── vnstockquery_tool.py       # VNStock data query tool
+├── ├── ├── serperdev_tool.py          # Google search tool
+├── app.py                             # Streamlit interface
+└── requirements.txt                   # Required dependencies
 ```
 
-2. Create a virtual environment
+## 📥 Installation
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/Tien-Dung-03/finance_chatbot
+cd financial-chatbot
+```
+
+2. **Create and activate a virtual environment**
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # On Windows, use `.venv\Scripts\activate`
+source .venv/bin/activate   # Linux/Mac
+.venv\Scripts\activate      # Windows
 ```
 
-3. Install dependencies
+3. **Install dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Set up environment variables
-- Create a `.env` file
-- Add your Groq API key: `GROQ_API_KEY=your_groq_api_key`
-
-## Usage
-
-### Streamlit Web Application
-```bash
-streamlit run src/app.py
+4. **Set environment variables**
+Create a `.env` file and add:
+```env
+GROQ_API_KEY=your_groq_api_key
+SERPER_API_KEY=your_serper_api_key
 ```
 
-### Example Queries
-- "What was the closing price of Microsoft on March 15, 2024?"
-- "On January 15, 2025, which company had a higher closing price, Apple or Microsoft?"
-- "What is the ticker symbol for Walt Disney?"
-- "Plot the time series of Microsoft (MSFT) stock closing price from June 1, 2024 to September 30, 2024."
+5. **Prepare the data**
+Run one after another to download data:
+``` bash
+python ./data/auto_down_data/download_vnstock_prices.py
+python ./data/auto_down_data/download_vnstock_prices.py
+```
+Then run
+``` bash
+python ./data/auto_down_data/import_to_sql.py
+```
+to create `vnstock_data.db`
 
-### Key Components
-- **FinancialTools**: Intuitive, query method
-- **Agent**: Intelligent interaction and tool selection
-- **Streamlit Interface**: User-friendly web application
+## 🚀 Run the Application
+```bash
+streamlit run app.py
+```
+After running, open your browser at `http://localhost:8501`.
 
-## Acknowledgments
+## 💡 Usage
+1. Select **Task**: currently supports `VNStock Data Lookup`.
+2. Enter a question in Vietnamese, e.g.:
+   ```
+   Giá đóng cửa của cổ phiếu Vietcombank vào ngày 15 tháng 3 năm 2024?
+   ```
+   Or English:
+   ```
+   What is closing price of Vietcombank shares on March 15, 2024?
+   ```
+3. Click **Submit** to get the answer.
+4. Optionally, view the **Log file** to check the processing steps.
 
-- Groq for providing the API used in this project.
-- Streamlit for the excellent web app framework.
+## 🛠 Key Features
+- **Query Vietnam stock market data** from the database.
+- **Search information on Google** when data is not available locally.
+- **Detailed logging** for debugging.
+
+## 📄 License
+MIT License.
