@@ -7,7 +7,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('log/finance_chatbot.log', mode='a', encoding='utf-8'),
+        logging.FileHandler('log/portfolio_optimization.log', mode='a', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
@@ -41,5 +41,3 @@ class VNStockQueryTool:
         except Exception as e:
             logger.error(f"Error executing SQL query: {e}")
             return f"Error: Unable to execute query - {str(e)}"
-
-    

@@ -8,14 +8,30 @@ The application can:
 - Execute queries, retrieve data from the Vietnam stock market database.
 - Return results in natural language.
 
+## 👨‍🏫 How ReAct Agent works
+
+The Investment Portfolio Analysis AI Agent is built on the ReAct (Reasoning and Action) framework, which combines the strength of large language models with a structured approach to problem-solving. Here's the workflow:
+
+1. **Thought**: The agent analyzes the user's query and formulates a plan of action.
+2. **Action**: Based on the thought, the agent selects and executes an appropriate tool or API call.
+3. **Observation**: The agent observes and interprets the results of the action.
+4. **Repeat**: This cycle continues until the agent has gathered enough information to provide a comprehensive answer.
+
+### Extension to Tool Calling
+The ReAct framework can be extended to incorporate specialized tools:
+- **Tool Definition**: Each tool (e.g., vnstockquery_tool) is defined with clear inputs and outputs.
+- **Tool Selection**: The agent learns to choose the most appropriate tool based on the current context and user query.
+- **Tool Execution**: The selected tool is called with the necessary parameters.
+- **Result Integration**: The agent incorporates tool outputs into its reasoning process for the final response.
+This extension allows the agent to leverage specific  functions while maintaining a flexible, language-model-driven interaction flow.
+
 ## ⚙️ Technologies Used
-- **Python 3.10+**
+- **Python 3.8+**
 - **Streamlit** – interactive web interface.
 - **Groq API** – natural language processing.
 - **LangChain / AI Agent logic** – orchestrating the processing flow.
 - **SQLite** – stock market database storage.
 - **SerperDevTool** – Google search integration.
-- **Matplotlib / Plotly** – data visualization.
 
 ## 🗂 Project Structure
 ```
@@ -26,14 +42,13 @@ The application can:
 ├── ├── stock.py                       # Database connection & query for stock data
 ├── log                                # Log folder
 ├── src
-├── ├── agent
-├── ├── ├── create_agent.py            # Agent class connecting to Groq API
+├── ├── config
 ├── ├── ├── systerm_prompt             # Prompt
-├── ├── run
-├── ├── ├── run_agent.py               # Agent loop, main logic
 ├── ├── tools
 ├── ├── ├── vnstockquery_tool.py       # VNStock data query tool
 ├── ├── ├── serperdev_tool.py          # Google search tool
+├── ├── create_agent.py                # Agent class connecting to Groq API
+├── ├── run_agent.py                   # Agent loop, main logic
 ├── app.py                             # Streamlit interface
 └── requirements.txt                   # Required dependencies
 ```
