@@ -7,6 +7,7 @@ import json
 import asyncio
 
 from src.tools.vnstockquery_tool import VNStockQueryTool
+from src.tools.serperdev_tool import SerperDevToolAsync
 from src.create_agent import Agent
 
 import dotenv
@@ -57,8 +58,9 @@ def load_system_prompt(file_name: str = 'config/system_prompt.txt') -> str:
 
 def execute_tool_action(chosen_tool, args_str):
     vnstockquery_tool = VNStockQueryTool()
+    serperdev_tool = SerperDevToolAsync(api_key=os.getenv('SERPER_API_KEY'))
 
-    if chosen_tool =="query_vnstock_data":
+    if chosen_tool == "query_vnstock_data":
         try:
             result = vnstockquery_tool.query_vnstock_data(args_str)
             logger.info(f"Tool result for query '{args_str}': {result}")
@@ -66,6 +68,21 @@ def execute_tool_action(chosen_tool, args_str):
         except Exception as e:
             logger.error(f"Error in query_vnstock_data: {e}")
             return f"Error running VNStock query: {e}"
+    elif chosen_tool == "serperdev_tool":
+        try:
+            # args_str có thể là JSON string như: { "query": "Khái niệm về chỉ số roe" }
+            search_params = json.loads(args_str) if isinstance(args_str, str) else args_str
+            search_query = search_params.get("query")
+            if not search_query:
+                return "Error: Missing 'query' parameter for serperdev_tool"
+            logger.info(f"Calling SerperDevToolAsync with query: {search_query}")
+
+            # Luôn chạy trong context async an toàn
+            result = asyncio.run(serperdev_tool.run(search_query=search_query, n_results=5))
+            return json.dumps(result, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logger.error(f"Error in serperdev_tool: {e}")
+            return f"Error running Serper Tool {e}"
     else:
         logger.error(f"Unknown tool: {chosen_tool}")
         return f"Error: Tool {chosen_tool} not recognized."

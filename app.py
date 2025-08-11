@@ -97,6 +97,7 @@ def main():
     st.markdown("Select a predefined query or enter your own below:")
 
     example_queries = [
+        "",
         "Lấy giá đóng cửa và khối lượng giao dịch của VCB vào ngày 15/03/2024",
         "Giá mở cửa của Công ty Cổ phần Tập đoàn Yeah1 vào ngày 10/04/2024",
         "Danh sách cổ phiếu có P/E nhỏ hơn 10 và ROE lớn hơn 15%",
