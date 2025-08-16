@@ -9,7 +9,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('log/portfolio_optimization.log', mode='a', encoding='utf-8'),
+        logging.FileHandler('log/finance_chatbot.log', mode='a', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )

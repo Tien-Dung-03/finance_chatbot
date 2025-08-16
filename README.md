@@ -39,16 +39,20 @@ This extension allows the agent to leverage specific  functions while maintainin
 ├── data
 ├── ├── auto_down_data                 # Folder containing files that automatically download data and transfer to db
 ├── ├── csv_file                       # Folder containing csv files
+├── ├── memory                         # Folder containing chat history db
 ├── ├── stock.py                       # Database connection & query for stock data
 ├── log                                # Log folder
 ├── src
 ├── ├── config
 ├── ├── ├── systerm_prompt             # Prompt
+├── ├── history
+├── ├── ├── sqlite_memory              # Create SQL file of chat memory
+├── ├── ├── summarizer_groq.py         # Chat history summary agent
+├── ├── create_agent.py                # Agent class connecting to Groq API
+├── ├── run_agent.py                   # Agent loop, main logic
 ├── ├── tools
 ├── ├── ├── vnstockquery_tool.py       # VNStock data query tool
 ├── ├── ├── serperdev_tool.py          # Google search tool
-├── ├── create_agent.py                # Agent class connecting to Groq API
-├── ├── run_agent.py                   # Agent loop, main logic
 ├── app.py                             # Streamlit interface
 └── requirements.txt                   # Required dependencies
 ```

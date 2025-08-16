@@ -8,6 +8,12 @@ import asyncio
 
 from src.tools.vnstockquery_tool import VNStockQueryTool
 from src.tools.serperdev_tool import SerperDevToolAsync
+
+from src.history.sqlite_memory import SQLiteAutoSummaryMemory
+from src.history.summarizer_groq import summarizer_fn
+
+memory = SQLiteAutoSummaryMemory(db_path="data/memory/chat_memory.db", summarizer_fn=summarizer_fn, max_turns=6)
+
 from src.create_agent import Agent
 
 import dotenv
@@ -22,7 +28,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('log/portfolio_optimization.log', mode='a', encoding='utf-8'),
+        logging.FileHandler('log/finance_chatbot.log', mode='a', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
@@ -110,23 +116,69 @@ def agent_loop(max_iterations, system_prompt, query):
     agent = Agent(client, system_prompt)
 
     next_prompt = query
+    full_trace = []
+    observations = []
+    final_answer = ""
+    
     for iteration in range(max_iterations):
         result = agent(next_prompt)
-        print(f"\n{'='*50}")
-        print(f"Iteration {iteration + 1}:")
-        print(result)   
+        full_trace.append(f"Iteration {iteration+1}:\n{result}")
 
-        if "Answer" in result:
+        # Kiểm tra Answer
+        ans_match = re.search(r'(?:\*\*Answer\*\*|Answer)\s*:\s*(.*)', result, re.DOTALL | re.IGNORECASE)
+        if ans_match:
+            final_answer = ans_match.group(1).strip()
             break
 
+        # Lấy Observation
+        obs_match = re.search(r'Observation\s*:\s*(.*)', result, re.DOTALL | re.IGNORECASE)
+        if obs_match:
+            observation = obs_match.group(1).strip()
+            observations.append(observation)
+
+        # Tool Action
         if "PAUSE" in result and "Action" in result:
             action_match = re.search(r"Action: ([a-z_]+): (.+)", result, re.IGNORECASE)
             if action_match:
                 chosen_tool, args_str = action_match.groups()
                 observation = execute_tool_action(chosen_tool, args_str)
-                next_prompt = f"Observation: {observation}"             
-                print(next_prompt)
+                next_prompt = f"Observation: {observation}"
                 continue
+
+    return final_answer, observations, "\n".join(full_trace)
+            
+def ask_agent(user_id: str, user_input: str, system_prompt: str = None, recent_limit: int = 4, conversation_id: int = None):
+    """
+    Lưu message -> build context (summary + recent) -> gọi agent_loop (1 iteration) -> lưu reply
+    """
+    if conversation_id is None:
+        conversation_id = memory.create_conversation(user_id, title=user_input[:50])
+        
+    # 1) save user message
+    memory.add_message(user_id, "user", user_input, conversation_id)
+
+    summary = memory.get_summary(conversation_id)
+    recent = memory.get_recent_messages(conversation_id, limit=recent_limit)
+
+    context_parts = []
+    if summary:
+        context_parts.append(f"[Tóm tắt trước đó]: {summary}")
+    for role, content in recent:
+        context_parts.append(f"{role.capitalize()}: {content}")
+    # add the new user message at end (explicit)
+    context_parts.append(f"User: {user_input}")
+
+    full_context = "\n".join(context_parts)
+
+    # 3) call agent_loop for single iteration (agent_loop prints output; we capture if needed)
+    # use provided system_prompt if given, otherwise load default
+    sp = system_prompt if system_prompt is not None else load_system_prompt()
+
+    # Because your agent_loop expects (max_iterations, system_prompt, query), pass 1 iteration
+    final_answer, observations, trace = agent_loop(max_iterations=5, system_prompt=sp, query=full_context)
+
+    memory.add_message(user_id, "assistant", final_answer, conversation_id)
+    return final_answer, observations, trace, conversation_id
 
 def main():
     """
