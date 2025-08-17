@@ -1,0 +1,11 @@
+groq
+streamlit
+python-dotenv
+typing-extensions
+pathlib
+pandas 
+matplotlib
+aiohttp
+nest_asyncio
+scipy
+vnstock
